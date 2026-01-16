@@ -1,5 +1,7 @@
 services:
   app:
+    env_file:
+      - .env
     build:
       dockerfile: Dockerfile
       context: .
@@ -9,3 +11,16 @@ services:
       watch:
         - action: rebuild
           path: ./
+
+  db:
+    env_file:
+      - .env
+    image: postgres
+    restart: always
+    shm_size: 128mb
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8888:8080"
