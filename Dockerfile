@@ -8,7 +8,7 @@ WORKDIR /app
 COPY go.* ./
 RUN go mod download
 
-COPY *.go ./
+COPY . .
 
 ENV GOCACHE=/root/.cache/go-build
 RUN --mount=type=cache,target="/root/.cache/go-build" CGO_ENABLED=0 GOOS=linux go build -o /member
