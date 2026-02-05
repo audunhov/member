@@ -1,0 +1,4 @@
+FROM gomicro/goose:latest
+COPY ./database/migrations /migrations
+ENTRYPOINT ["goose"]
+CMD ["up"]
