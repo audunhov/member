@@ -29,6 +29,11 @@ func main() {
 	as := auth.NewAuthService(conn, queries)
 
 	mux := http.NewServeMux()
+
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Healthy"))
+	})
+
 	mux.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
 		email := r.FormValue("email")
 		password := r.FormValue("password")

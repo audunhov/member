@@ -1,19 +1,60 @@
 services:
+
+  traefik:
+    image: traefik:v3.6
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.network=proxy"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    networks:
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   app:
     env_file:
       - .env
     build:
       dockerfile: Dockerfile
       context: .
-    ports:
-      - "8080:8080"
+    networks:
+      - proxy
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.entrypoints=web"
+      - "traefik.http.routers.app.rule=Host(`member.docker.localhost`) && PathPrefix(`/api`)"
     develop:
       watch:
         - action: rebuild
           path: ./
+          ignore:
+            - frontend/
     depends_on:
       db:
         condition: service_healthy
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile.dev
+
+    networks:
+      - proxy
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.routers.frontend.rule=Host(`member.docker.localhost`)"
+    develop:
+      watch:
+        - action: sync
+          path: frontend/
+          target: /app
 
   db:
     env_file:
@@ -21,6 +62,8 @@ services:
     image: postgres
     restart: always
     shm_size: 128mb
+    networks:
+      - proxy
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
@@ -29,6 +72,8 @@ services:
       start_period: 10s
     
   migrations:
+    networks:
+      - proxy
     build:
       context: .
       dockerfile: Dockerfile.migrations
@@ -39,7 +84,13 @@ services:
         condition: service_healthy
 
   adminer:
+    networks:
+      - proxy
     image: adminer
+    labels:
+      - "traefik.enable=true"
     restart: always
-    ports:
-      - "8888:8080"
+
+networks:
+  proxy:
+    name: proxy
