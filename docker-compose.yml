@@ -27,7 +27,10 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.app.entrypoints=web"
-      - "traefik.http.routers.app.rule=Host(`member.docker.localhost`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.app.rule=Host(`localhost`) && PathPrefix(`/api/`)"
+      - "traefik.http.middlewares.app-strip.stripprefix.prefixes=/api"
+      - "traefik.http.middlewares.app-strip.stripprefix.forceslash=false"
+      - "traefik.http.routers.app.middlewares=app-strip"
     develop:
       watch:
         - action: rebuild
@@ -49,7 +52,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.entrypoints=web"
-      - "traefik.http.routers.frontend.rule=Host(`member.docker.localhost`)"
+      - "traefik.http.routers.frontend.rule=Host(`localhost`)"
     develop:
       watch:
         - action: sync

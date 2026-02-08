@@ -50,19 +50,21 @@ func main() {
 		}
 		json.NewEncoder(w).Encode(user)
 	})
+
 	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 
 		user, err := as.Login(r.Context(), email, password)
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		json.NewEncoder(w).Encode(user)
 	})
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r.URL.String())
 		w.Write([]byte("Hello world"))
 	})
 	fmt.Println("Starting server at :8080")
