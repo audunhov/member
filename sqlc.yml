@@ -13,3 +13,7 @@ sql:
         overrides:
           - db_type: "jsonb"
             go_type: "github.com/jackc/pgx/v5/pgtype.Map"
+          - db_type: "uuid"
+            go_type:
+              import: "github.com/google/uuid"
+              type: "UUID"

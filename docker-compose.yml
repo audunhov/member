@@ -27,10 +27,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.app.entrypoints=web"
-      - "traefik.http.routers.app.rule=Host(`localhost`) && PathPrefix(`/api/`)"
-      - "traefik.http.middlewares.app-strip.stripprefix.prefixes=/api"
-      - "traefik.http.middlewares.app-strip.stripprefix.forceslash=false"
-      - "traefik.http.routers.app.middlewares=app-strip"
+      - "traefik.http.routers.app.rule=Host(`localhost`) && PathPrefix(`/api`)"
     develop:
       watch:
         - action: rebuild

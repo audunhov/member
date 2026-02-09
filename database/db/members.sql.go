@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -17,8 +18,8 @@ VALUES ($1, $2)
 `
 
 type CreateLocalAuthParams struct {
-	MemberID     pgtype.UUID `json:"member_id"`
-	PasswordHash string      `json:"password_hash"`
+	MemberID     uuid.UUID `json:"member_id"`
+	PasswordHash string    `json:"password_hash"`
 }
 
 func (q *Queries) CreateLocalAuth(ctx context.Context, arg CreateLocalAuthParams) error {
@@ -70,6 +71,25 @@ func (q *Queries) GetMemberByEmail(ctx context.Context, email string) (Member, e
 	return i, err
 }
 
+const getMemberById = `-- name: GetMemberById :one
+SELECT id, email, data, email_verified_at, created_at, updated_at FROM members
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetMemberById(ctx context.Context, id uuid.UUID) (Member, error) {
+	row := q.db.QueryRow(ctx, getMemberById, id)
+	var i Member
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Data,
+		&i.EmailVerifiedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getMemberWithPassword = `-- name: GetMemberWithPassword :one
 SELECT 
     m.id, m.email, m.data, m.email_verified_at, m.created_at, m.updated_at, 
@@ -80,7 +100,7 @@ WHERE m.email = $1 LIMIT 1
 `
 
 type GetMemberWithPasswordRow struct {
-	ID              pgtype.UUID        `json:"id"`
+	ID              uuid.UUID          `json:"id"`
 	Email           string             `json:"email"`
 	Data            pgtype.Map         `json:"data"`
 	EmailVerifiedAt pgtype.Timestamptz `json:"email_verified_at"`
@@ -89,7 +109,6 @@ type GetMemberWithPasswordRow struct {
 	PasswordHash    string             `json:"password_hash"`
 }
 
-// Brukes ved innlogging: Henter brukerinfo + passordhash i én jafs
 func (q *Queries) GetMemberWithPassword(ctx context.Context, email string) (GetMemberWithPasswordRow, error) {
 	row := q.db.QueryRow(ctx, getMemberWithPassword, email)
 	var i GetMemberWithPasswordRow

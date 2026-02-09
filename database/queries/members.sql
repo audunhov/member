@@ -11,8 +11,11 @@ VALUES ($1, $2);
 SELECT * FROM members
 WHERE email = $1 LIMIT 1;
 
+-- name: GetMemberById :one
+SELECT * FROM members
+WHERE id = $1 LIMIT 1;
+
 -- name: GetMemberWithPassword :one
--- Brukes ved innlogging: Henter brukerinfo + passordhash i én jafs
 SELECT 
     m.*, 
     la.password_hash 

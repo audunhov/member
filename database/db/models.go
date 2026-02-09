@@ -5,16 +5,17 @@
 package db
 
 import (
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type LocalAuth struct {
-	MemberID     pgtype.UUID `json:"member_id"`
-	PasswordHash string      `json:"password_hash"`
+	MemberID     uuid.UUID `json:"member_id"`
+	PasswordHash string    `json:"password_hash"`
 }
 
 type Member struct {
-	ID              pgtype.UUID        `json:"id"`
+	ID              uuid.UUID          `json:"id"`
 	Email           string             `json:"email"`
 	Data            pgtype.Map         `json:"data"`
 	EmailVerifiedAt pgtype.Timestamptz `json:"email_verified_at"`
